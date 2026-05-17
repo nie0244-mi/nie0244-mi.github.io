@@ -1,0 +1,15 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": ["LP6KB9Q4A7.com.tsu.it.Plochi"],
+        "components": [
+          {
+            "/": "/plochi/plan",
+            "?": { "token": "?*" }
+          }
+        ]
+      }
+    ]
+  }
+}
