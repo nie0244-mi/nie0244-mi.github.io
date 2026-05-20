@@ -3,22 +3,126 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Plochi - プランを見る</title>
+  <title>Plochiで旅行プランを受け取る</title>
+  <meta name="apple-itunes-app" content="app-id=6762283390">
   <style>
-    body { font-family: -apple-system, sans-serif; text-align: center;
-           padding: 60px 24px; background: #f9f9f9; }
-    h1 { font-size: 24px; }
-    p  { color: #666; }
-    a  { display: inline-block; margin-top: 24px; padding: 14px 28px;
-         background: #007AFF; color: white; border-radius: 12px;
-         text-decoration: none; font-weight: bold; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #f2f2f7;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .card {
+      background: #fff;
+      border-radius: 20px;
+      padding: 40px 28px 32px;
+      max-width: 360px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    }
+    .icon { font-size: 64px; line-height: 1; margin-bottom: 20px; }
+    h1 { font-size: 20px; font-weight: 700; color: #1c1c1e; margin-bottom: 10px; }
+    .desc { font-size: 15px; color: #6e6e73; line-height: 1.6; margin-bottom: 28px; }
+    .btn-primary {
+      display: block;
+      background: #007aff;
+      color: #fff;
+      text-decoration: none;
+      padding: 15px 24px;
+      border-radius: 14px;
+      font-size: 17px;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+    .note {
+      font-size: 13px;
+      color: #aeaeb2;
+      line-height: 1.6;
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid #f2f2f7;
+    }
+    #status {
+      font-size: 14px;
+      color: #6e6e73;
+      margin-bottom: 16px;
+      min-height: 20px;
+    }
   </style>
 </head>
 <body>
-  <h1>🗺️ Plochiでプランを見る</h1>
-  <p>このリンクを開くにはPlochiアプリが必要です。</p>
-  <a href="https://apps.apple.com/jp/app/id[アプリID]">
-    App Storeでダウンロード
-  </a>
+  <div class="card">
+    <div class="icon">🗺️</div>
+    <h1>旅行プランが届いています</h1>
+    <p class="desc">
+      リンクの有効期限は<strong>1時間</strong>です。<br>
+      期限内にアプリで開いてください。
+    </p>
+
+    <p id="status"></p>
+
+    <a id="open-app-btn" href="#" class="btn-primary" style="display:none;">
+      Plochiで開く
+    </a>
+    <a id="appstore-btn" href="https://apps.apple.com/jp/app/id6762283390" class="btn-primary">
+      App Storeでダウンロード
+    </a>
+
+    <p class="note">
+      すでにインストール済みの場合は、<br>
+      上の「Plochiで開く」をタップしてください。
+    </p>
+  </div>
+
+  <script>
+    var APP_STORE_URL = 'https://apps.apple.com/jp/app/id6762283390';
+    var params = new URLSearchParams(window.location.search);
+    var token = params.get('token');
+
+    if (token) {
+      var customSchemeURL = 'plochi://plan?token=' + encodeURIComponent(token);
+
+      var meta = document.querySelector('meta[name="apple-itunes-app"]');
+      if (meta) {
+        meta.setAttribute('content',
+          'app-id=6762283390, app-argument=' + window.location.href);
+      }
+
+      var openBtn = document.getElementById('open-app-btn');
+      openBtn.href = customSchemeURL;
+      openBtn.style.display = 'block';
+      document.getElementById('appstore-btn').style.display = 'none';
+
+      var appOpened = false;
+      document.addEventListener('visibilitychange', function () {
+        if (document.hidden) appOpened = true;
+      });
+      window.addEventListener('blur', function () {
+        appOpened = true;
+      });
+
+      setTimeout(function () {
+        document.getElementById('status').textContent = 'アプリを起動中...';
+        window.location = customSchemeURL;
+      }, 500);
+
+      setTimeout(function () {
+        if (!appOpened) {
+          document.getElementById('status').textContent =
+            'アプリが見つかりません。App Storeからインストールしてください。';
+          document.getElementById('appstore-btn').style.display = 'block';
+          document.getElementById('open-app-btn').style.display = 'none';
+        }
+      }, 2200);
+
+    } else {
+      document.getElementById('status').textContent = 'リンクが無効です。';
+    }
+  </script>
 </body>
 </html>
